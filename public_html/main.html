@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Афинные преобразования</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script type="text/javascript" src="js/affine_transformation_animate.js"></script>
+
+        <script src="lib_js/Three.js"></script>
+        <script src="lib_js/OrbitControls.js"></script>
+        <script src="lib_js/jquery-3.5.1.slim.min.js"></script>
+
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="css/Style.css" >
+    </head>
+
+    <body>
+    <!--меню-->
+    <div>
+        <nav id="menu">
+            <ul>
+                <li>Аффинные пребразования
+                    <ul>
+                        <li id="affine_information" OnClick="affine_info();">Общая информация</li>
+                        <li id="parallel_translation" OnClick="parallel_trans();">Параллельный перенос</li>
+                        <li id="scaling" OnClick="scale();">Масштабирование</li>
+                        <li id="shifting" onclick="shiftin();">Сдвиг</li>
+                    </ul>
+                </li>
+                <li>Углы Эйлера
+                    <ul>
+                        <li id="anglesEuler_information" OnClick="rotat_info();">Общая информация</li>
+                        <li id="anglesEuler_rotation" onclick="rotat();">Поворот</li>
+                    </ul>
+                </li>
+                <li>кватернионы
+                    <ul>
+                        <li id="quaternion_information" OnClick="rotatQuat_info();">Общая информация</li>
+                        <li id="quaternion_rotation" onclick="rotatQuat();">Поворот</li>
+                    </ul>
+                </li>
+                <li>Проекции
+                    <ul>
+                        <li id="projections_information" OnClick="projections_info();">Общая информация</li>
+                        <li id="projections_perspective" onclick="perspectProject();">Перспективная проекция</li>
+                        <li id="projections_orthogonal" onclick="orthogonalProject();">Ортогональная проекция</li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!--общая информация-->
+    <div id="general_info">
+        <p>
+            <b> Однородные координаты </b>— координаты, обладающие тем свойством,
+            что определяемый ими объект не меняется при умножении всех координат на одно и то же число.
+            \[\left(x,y,z\right) \rightarrow \left(x^{'},y^{'},z^{'},w\right)\]
+            При переходе к однородным координатам для точки с координатами \(\left(x,y,z\right)\) предлагается взять набор \(\left(x,y,z,1\right)\).
+            <br>
+            Чтобы из однородных координат вернуться к эвклидовым нужно нормализовать координату
+            \[\left(x,y,z,w\right) = \left(\frac{x}{w},\frac{y}{w},\frac{z}{w},1\right) \rightarrow \left(\frac{x}{w},\frac{y}{w},\frac{z}{w}\right)\]
+            Если \(w = 0\), то координата находится на бесконечности и её нельзя представить в эвклидовых координатах.
+        </p>
+        <p>
+            <b>В общем случае преобразование координат можно записать следующим образом.</b><br>
+            Пусть точка \(A\) имеет координаты \(\left(x_{1},x_{2},...x_{n}\right)\), тогда координаты
+            \(\left(x_{1}^{'},x_{2}^{'},...,x_{m}^{'}\right)\)
+            соответствующей точки \(A^{'}\) полученные в результате преобразования можно найти по формуле
+            \[\begin{cases}x_{1}^{'}=f_{1}\left(x_{1},x_{2},...x_{n}\right)\
+            \\x_{2}^{'}=f_{2}\left(x_{1},x_{2},...x_{n}\right)\\
+            ...\\
+            x_{m}^{'}=f_{m}\left(x_{1},x_{2},...x_{n}\right)
+            \end{cases},\]
+            где \(f_{i}\) - функции, определяющие характер преобразований.
+        </p>
+    </div>
+
+
+    <!--координаты-->
+    <div>
+        <div id="output">
+<!--            <form name="myVertex">-->
+<!--                <input type="radio" name="systemCoordinate" id="gsc" checked="checked" value="1"/><span>ГСК</span>-->
+<!--                <input type="radio" name="systemCoordinate" id="lsc" value="2" /><span>ЛСК</span>-->
+<!--            </form>-->
+            <form>
+                <p>
+                    \(x\)<input type="number" value="0" class="coordinates" id="x" step="0.1">\(\rightarrow
+                    {x}'\)<input type="number" value="0" class="coordinates" id="res_x" step="0.1">
+                </p>
+                <p>
+                    \(y\)<input type="number" value="20" class="coordinates" id="y" step="0.1">\(\rightarrow
+                    {y}'\)<input type="number" value="20" class="coordinates" id="res_y" step="0.1">
+                </p>
+                <p>
+                    \(z\)<input type="number" value="0" class="coordinates" id="z" step="0.1">\(\rightarrow
+                    {z}'\)<input type="number" value="0" class="coordinates" id="res_z" step="0.1">
+                </p>
+                <p>
+                    \(w\)<input type="number" value="1" class="coordinates" id="w" step="0.1">\(\rightarrow
+                    {w}'\)<input type="number" value="1" class="coordinates" id="res_w" step="0.1">
+                </p>
+            </form>
+            <div id="myVertex">
+                <form name="myVertex">
+                    <input onclick="changingVertex();" type="radio" name="vertex" checked="checked" value="1"/><span>Вершина 1</span>
+                    <input onclick="changingVertex();" type="radio" name="vertex" value="2" /><span>Вершина 2</span>
+                    <input onclick="changingVertex();" type="radio" name="vertex" value="3" /><span>Вершина 3</span><br>
+                    <input onclick="changingVertex();" type="radio" name="vertex" value="4" /><span>Вершина 4</span>
+                    <input onclick="changingVertex();" type="radio" name="vertex" value="5" /><span>Вершина 5</span>
+                    <input onclick="changingVertex();" type="radio" name="vertex" value="6" /><span>Вершина 6</span>
+                </form>
+            </div>
+            <p><button class="reset" id="reset" onclick="resetMatrix();">Сброс</button></p>
+        </div>
+    </div>
+
+
+    <!--информация аффинные преобразования-->
+    <div id="affine_info" class="info">
+        <p>
+            Аффинное преобразование евклидова пространства - взаимно
+            однозначное точечное отображение плоскости
+            или пространства на себя, при котором:
+        </p>
+        <ul>
+            <li>прямые (плоскости) переходят в прямые(плоскости);</li>
+            <li>пересекающиеся прямые (плоскости) в пересекающиеся;</li>
+            <li>параллельные - в параллельные.</li>
+        </ul>
+        <p>
+            Аффинное преобразование - комбинация линейных преобразований, при
+            которых последняя строка в обобщенной матрице \(4\times4\)
+            равна \(\left(\begin{array}{c}0&0&0&s\end{array}\right)\):
+            \[\begin{bmatrix}a_{11} & a_{12} & a_{13} & a_{13}\\a_{21} & a_{22} & a_{23} & a_{23}
+            \\a_{31} & a_{32} & a_{33} & a_{33} \\0 & 0 & 0 &s \\\end{bmatrix}\]
+            т.к. в противном случае нет взаимно однозначного
+            соответствия между преобразованием и матричным оператором.
+            <br>
+            В общем виде афинные преобразования записываются следующим образом:
+            \[\begin{cases}x^{'} = Ax+By+C\\y^{'} = Dx+Ey+F\end{cases}\]
+            Переход к матричной форме:
+            \[\begin{bmatrix}x^{'} & y^{'}\end{bmatrix}=\begin{bmatrix}x & y\end{bmatrix}
+            *\begin{bmatrix}a & b \\c & d \end{bmatrix}=\begin{bmatrix}ax+cy & bx+dy \end{bmatrix}\]
+        </p>
+    </div>
+    <div>
+        <!--параллельный перенос-->
+        <div id="parallel_trans" class='coord_syst'>
+            <h3>Параллельный перенос</h3>
+            \[\begin{cases}{x}'= x+t_{x}\\{y}'= y+t_{y}\\{z}'= z+t_{z}\end{cases}\]
+            \[\left(\begin{array}{c}{x}'\\{y}'\\{z}'\\1\end{array}\right)=
+            \begin{pmatrix}1 & 0 & 0 & t_{x}\\0 & 1 & 0 & t_{y} \\0 & 0 & 1 & t_{z} \\0 & 0 & 0 & 1 \\\end{pmatrix}\times
+            \left(\begin{array}{c}x\\ y\\z\\1\end{array}\right)\]
+        </div>
+        <!--масштабирование-->
+        <div id="scale" class='coord_syst'>
+            <h3>Масштабирование (сжатие/растяжение, отражение)</h3>
+            <p>
+                \[\begin{cases}{x}'= s_{x}x\\{y}'= s_{y}y\\{z}'= s_{z}z\end{cases}\]
+                \[\begin{pmatrix}s_{x} & 0 & 0 & 0\\0 & s_{y} & 0 & 0 \\0 & 0 & s_{z} & 0 \\0 & 0 & 0 & s \\\end{pmatrix}\]
+                \(s\) - задает полное масштабирование объекта.
+                <br>
+                Комбинация коэффициентов \(s_{x} = -1, s_{y} = 1, s_{z} = 1\) будет задавать отражение от плоскости \(Oyz (x = 0)\).
+                При \(s_{x} = s_{y} = s_{z} = -1\) получим центральную симметрию относительно начала координат.
+            </p>
+        </div>
+        <!--сдвиг-->
+        <div id="shiftin" class='coord_syst'>
+            <h3>Сдвиг</h3>
+            <p>
+                \[\begin{cases}{x}'= x+xy_{1}+xz_{1}\\{y}'= yx_{1}+y+yz_{2}\\{z}'= zx_{2}+zy_{2}+z\end{cases}\]
+                \[\begin{pmatrix}1 & y_{1} & z_{1} & 0\\x_{1} & 1 & z_{2} & 0
+                \\x_{2} & y_{2} & 1 & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            </p>
+        </div>
+        <div id="affineMatrix" class="coord_syst" onclick="outputMatrix()">
+            <form>
+                <p>
+                    <input type="number" class="coordinates" value="1" id="a00" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a01" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a02" step="0.1">
+                    <input type="number"  class="coordinates" value="0" id="a03" step="1">
+                </p>
+                <p>
+                    <input type="number" class="coordinates" value="0" id="a10" step="0.1">
+                    <input type="number" class="coordinates" value="1" id="a11" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a12" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a13" step="1">
+                </p>
+                <p>
+                    <input type="number" class="coordinates" value="0" id="a20" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a21" step="0.1">
+                    <input type="number" class="coordinates" value="1" id="a22" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a23" step="1">
+                </p>
+                <p>
+                    <input type="number" class="coordinates" value="0" id="a30" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a31" step="0.1">
+                    <input type="number" class="coordinates" value="0" id="a32" step="0.1">
+                    <input type="number" class="coordinates" value="1" id="a33" step="0.1">
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!--Углы Эйлера информация-->
+    <div id="rotat_info" class="info">
+        <p>
+            Изменение положения, масштаба, поворота объекта происходит за счет премножения матриц преобразования(матрицы положения, масштаба, сдвига, поворота).
+            <br>
+            Конечная матрица поворота \(R\) достигается путем перемножения матриц поворота \(R_{x}\),
+            \(R_{y}\), \(R_{z}\).
+            \[R=\begin{pmatrix}1 & 0 & 0 & 0\\0 & \cos(\phi_{x}) & -\sin(\phi_{x}) & 0
+            \\0 & \sin(\phi_{x}) &\cos(\phi_{x}) & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}*
+            \begin{pmatrix}\cos(\phi_{y}) & 0 & \sin(\phi_{y}) & 0\\0 & 1 & 0 & 0
+            \\-\sin(\phi_{y}) & 0 &\cos(\phi_{y}) & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}*
+            \begin{pmatrix}\cos(\phi_{z}) & -\sin(\phi_{z})  & 0& 0
+            \\\sin(\phi_{z}) & \cos(\phi_{z}) & 0 & 0 \\0 & 0 & 1 & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            К примеру,
+            \[R_{z}(-\alpha)R_{x}(-\beta)=\begin{pmatrix}\cos(\alpha) & \sin(\alpha)\cos(\beta)& \sin(\alpha)\sin(\beta)
+            \\-\sin(\alpha) & \cos(\alpha)\cos(\beta) & \cos(\alpha)\sin(\beta)
+            \\0 & -\sin(\beta) &\cos(\beta)\\\end{pmatrix}\]
+            \[R=\begin{pmatrix}
+            \cos(\alpha)\cos(\gamma)-\sin(\alpha)\cos(\beta)\sin(\gamma) &\cos(\alpha)\sin(\gamma)+\sin(\alpha)\cos(\beta)\cos(\gamma)& \sin(\alpha)\sin(\beta)
+            \\-\sin(\alpha)\cos(\gamma)-\cos(\alpha)\cos(\beta)\sin(\gamma) & -\sin(\alpha)\sin(\gamma)+\cos(\alpha)\cos(\beta)\cos(\gamma) & \cos(\alpha)\sin(\beta)
+            \\\sin(\beta)\sin(\gamma) & -\sin(\beta)\cos(\gamma) &\cos(\beta)\\
+            \end{pmatrix}\]
+            Конечный результ всегда зависит от примененной комбинации поворотов по осям.
+        </p>
+    </div>
+    <!--поворот-->
+    <div id="rotat" class='coord_syst'>
+        <div id="anglesEuler">      
+            <h3>Углы Эйлера</h3>
+            <p>Формула поворота относительно оси:</p>
+            <form name="myАxes">
+                <input type="radio" class="axes" name="axes" checked="checked" value="rotateX" OnClick="radio();"/><span>X</span>
+                <input type="radio" class="axes" name="axes" value="rotateY" OnClick="radio();"/><span>Y</span>
+                <input type="radio" class="axes" name="axes" value="rotateZ" OnClick="radio();"/><span>Z</span>
+            </form>
+            <div id="acexX">
+                \[\begin{pmatrix}1 & 0 & 0 & 0\\0 & \cos(\phi_{x}) & -\sin(\phi_{x}) & 0
+                \\0 & \sin(\phi_{x}) &\cos(\phi_{x}) & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            </div>
+            <div id="acexY">
+                \[\begin{pmatrix}\cos(\phi_{y}) & 0 & \sin(\phi_{y}) & 0\\0 & 1 & 0 & 0
+                \\-\sin(\phi_{y}) & 0 &\cos(\phi_{y}) & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            </div>
+            <div id="acexZ">
+                \[\begin{pmatrix}\cos(\phi_{z}) & -\sin(\phi_{z})  & 0& 0
+                \\\sin(\phi_{z}) & \cos(\phi_{z}) & 0 & 0 \\0 & 0 & 1 & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            </div>
+            <div id="r">
+<!--                <p>Угол поворота в градусах:</p>-->
+                <p>\(\phi_{x}\): <input type="number" name="rx" value="0" class="r" id="rx" onclick="rotate();" step="1"></p>
+                <p>\(\phi_{y}\): <input type="number" name="ry" value="0" class="r" id="ry" onclick="rotate();" step="1"></p>
+                <p>\(\phi_{z}\): <input type="number" name="rz" value="0" class="r" id="rz" onclick="rotate();" step="1"></p>
+            </div>       
+
+        </div>
+    </div>
+
+    <div id="output_rotate">
+        <form>
+            <p>
+                <input type="number" class="coordinates" value="1" id="r00" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r01" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r02" step="0.1">
+                <input type="number"  class="coordinates" value="0" id="r03" step="1">
+            </p>
+            <p>
+                <input type="number" class="coordinates" value="0" id="r10" step="0.1">
+                <input type="number" class="coordinates" value="1" id="r11" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r12" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r13" step="1">
+            </p>
+            <p>
+                <input type="number" class="coordinates" value="0" id="r20" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r21" step="0.1">
+                <input type="number" class="coordinates" value="1" id="r22" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r23" step="1">
+
+            </p>
+            <p>
+                <input type="number" class="coordinates" value="0" id="r30" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r31" step="0.1">
+                <input type="number" class="coordinates" value="0" id="r32" step="0.1">
+                <input type="number" class="coordinates" value="1" id="r33" step="0.1">
+
+            </p>
+        </form>
+    </div>
+    <!--кватернионы информация-->
+    <div id="rotatQuat_info" class="info">
+        <p>
+            Кватернион – это скаляр w и вектор v, который задает трехмерный
+            вектор и угол поворота относительно этого вектора.
+            \[q=\left( w, \overrightarrow{v}\right)\]
+            Но справедливы разные формы представления
+            \[q=\left( w, \overrightarrow{v}\right)=w+xi+yj+zk\]
+            \[\bf\color{orange}i^{2}=j^{2}=k^{2}=ijk=-1\]
+            \[q=w+\left(x,y,z\right)=\bf\color{orange}\cos(\alpha/2)+u\sin(\alpha/2)\]
+        </p>
+        <p>
+            <b>Операции над кватернионами:</b>
+            \[q_{1}\cdot q_{2}=\left( w_{1}, \overrightarrow{v_{1}}\right)\cdot \left( w_{2}, \overrightarrow{v_{2}}\right)
+            =\left(w_{1}+x_{1}i+y_{1}j+z_{1}k\right)\cdot
+            \left(w_{2}+x_{2}i+y_{2}j+z_{2}k\right)
+            =w_{1}w_{2}-v_{1}\cdot v_{2}+w_{1}v_{2}+w_{2}v_{1}+v_{1}\times v_{2}\]
+            \[q^{-1}=w-xi-yj-zk=\frac{q}{\mid q^{2}\mid}\]
+            \[{\mid q\mid}=\sqrt{w^{2}+x^{2}+y^{2}+z^{2}}\]
+            \[q^{-1}=\cos(\alpha/2)-u\sin(\alpha/2)=\frac{q}{\cos^{2}(\alpha/2)+3\sin^{2}(\alpha/2)}\]
+            \[\bf\color{orange}{v}'=qvq^{-1}\]
+        </p>
+    </div>
+    <!--кватернионы-->
+    <div id="rotatQuat" class='coord_syst'>
+        <h3>Kватернионы</h3>
+        <div id="anglesQuat">
+            <div id="matrixQuat">
+                Кватернион – это скаляр w и вектор v, который задает трехмерный
+                вектор и угол поворота относительно этого вектора.
+                \[q=\left( w, \overrightarrow{v}\right)\]
+                \[ \begin{pmatrix}1-2y^{2}-2z^{2} & 2xy-2zw & 2xz+2yw & 0\\2xy+2zw & 1-2x^{2}-2z^{2} & 2yz-2xw & 0
+                \\2xz-2yw &  2yz+2xw  &1-2x^{2}-2y^{2} & 0 \\0 & 0 & 0 & 1 \\\end{pmatrix}\]
+            </div>
+            <div id="quaterVW">
+                \(w\):<input type="number"  class="quat" value="0" id="quat_w" onclick="rotateQuat();" step="1">
+                \(v_{x}\):<input type="number" class="quat" value="1" id="quat_vx" onclick="rotateQuat();" step="1">
+                \(v_{y}\):<input type="number" class="quat" value="0" id="quat_vy" onclick="rotateQuat();" step="1">
+                \(v_{z}\):<input type="number" class="quat" value="0" id="quat_vz" onclick="rotateQuat();" step="1">
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--проекции информация-->
+    <div id="projections_info" class="info">
+        <p>
+            В общем случае проекции преобразуют точки, заданные в системе координат размерностью \(n\), в
+            системы координат размерностью меньше \(n\).
+        </p>
+        <p>
+            Проекция трехмерного объекта строится на месте пересечения картинной плоскости и
+            прямых проекционных лучей (проекторов), выходящих из центра проекции и проходящих
+            через каждую точку объекта.
+        </p>
+        <figure class="fig">
+            <img src="images/Проекции.png" width="500" height="400" alt="Классификация проекций">
+            <figcaption>
+                Рис. Классификация проекций
+            </figcaption>
+        </figure>
+    </div>
+    <div>
+        <!--перспективная проекция-->
+        <div id="perspectProject" class='coord_syst'>
+            <h3>Перспективная проекция</h3>
+            <p>
+                \(r\) - одноточечная, \(r,q\) - двухточечная, \(r,q,p\) - трёхточечная
+                \[\left(\begin{array}{c}1&0&0&p\\0&1&0&q\\
+                0&0&1&r\\0&0&0&1\end{array}\right)\]
+                Перспективное проецирование на некоторую двумерную видовую плоскость можно получить, объединив
+                ортографическую(видовую) проекцию с перспективным преобразованием.
+            </p>
+        </div>
+        <!--ортогональная проекция-->
+        <div id="orthogonalProject" class='coord_syst'>
+            <h3>Ортогональная проекция</h3>
+            <p>
+                Матрица такой проекции всегда содержит столбец из нулей.
+                \[\left(\begin{array}{c}1&0&0&0\\0&1&0&0\\
+                0&0&0&0\\0&0&0&1\end{array}\right)\times\left
+                (\begin{array}{c}x\\ y\\z\\w\end{array}\right)=\left(\begin{array}{c}x\\ y\\0\\z\end{array}\right)\]
+                При \(z = 0\) получаем проекцию на плоскость \(XOY\)
+            </p>
+        </div>
+        <!--матрица проекции-->
+        <div id="pp"class='coord_syst'>
+            <form>
+                <p>
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="1" id="pp00" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp01" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp02" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp03" step="1">
+                </p>
+                <p>
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp10" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="1" id="pp11" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp12" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp13" step="1">
+                </p>
+                <p>
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp20" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp21" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="1" id="pp22" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp23" step="1">
+
+                </p>
+                <p>
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp30" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp31" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="0" id="pp32" step="1">
+                    <input type="number" oninput="perspectiveProjection();" class="pp" value="1" id="pp33" step="1">
+                </p>
+            </form>
+        </div>
+    </div>
+
+    </body>
+</html>

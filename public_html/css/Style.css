@@ -1,0 +1,221 @@
+/*********изображения************/
+.fig {
+    display: block; /* Блочный элемент (для старых браузеров) */
+    text-align: center; /* Выравнивание по центру */
+    font-style: italic; /* Курсивное начертание */
+    margin-top: 0; /* Отступ сверху */
+    margin-bottom: 5px; /* Отступ снизу */
+    color: #666; /* Цвет подрисуночной подписи */
+}
+/*********************************/
+#output_rotate{
+    display: none;
+}
+#output{
+    display: none;
+}
+#acexY{
+    display: none;
+}
+#acexZ{
+    display: none;
+}
+/***********меню*************/
+#menu{
+    position:relative;
+    display:block;
+    width:100%;
+    height:auto;
+    z-index:10;
+}
+#menu ul{
+    position:relative;
+    display:block;
+    margin:0px;
+    padding:0px;
+    width:100%;
+    height:auto;
+    list-style:none;
+    background:#506063;
+}
+#menu > ul::after{
+    display:block;
+    width:100%;
+    height:0px;
+    clear:both;
+    content:" ";
+}
+#menu ul li{
+    position:relative;
+    float:left;
+    width:auto;
+    height:auto;
+    
+    display:block;
+    padding:9px 25px 0px 25px;
+    font-size:14px;
+    font-family:Arial, sans-serif;
+    color: #fff;
+    line-height:1em;
+    text-decoration:none;
+    font-weight:bold;
+    text-transform:uppercase;
+    height: 45px;
+    box-sizing:border-box;
+}
+#menu ul li:hover{
+    color: black;
+    background:#313f42; 
+}
+#menu ul li ul{
+    position:absolute;
+    top:45px;
+    left:0px;
+    display:none;
+    width:200px;
+    background:#6d898f;
+}
+#menu ul li:hover ul{display:block;}
+#menu ul li ul li{    
+    float:none;
+    width:100%;
+    display:block;
+    text-transform:none;
+    height:auto;
+    padding:7px 25px;
+    width:100%;
+    box-sizing:border-box;
+    border-top:1px solid #ffffff;
+}
+#menu ul li ul li:first-child a{border-top:0px;}
+#menu ul li ul li:hover{
+    color: black;
+    background:#313f42; 
+}
+/*********поля ввода*************/
+input[type=number] {
+    border: 1px solid #555;
+    padding: 4px 8px;
+    margin: 1px 5px;
+    width: 80px;
+}
+input[type=number]:focus {
+    border: 2px solid #000000;
+}
+/******сброс*********************/
+.reset{
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
+    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
+    color: #fff;
+    display:block;
+    width:100px;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    margin: 20px auto;
+    text-decoration: none;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: background-color 0.1s linear;
+    -moz-transition: background-color 0.1s linear;
+    -o-transition: background-color 0.1s linear;
+    transition: background-color 0.1s linear;        
+}
+.reset {
+    background-color: #506063;
+    border: 1px solid rgb( 33, 126, 74 );
+}
+.reset:hover {
+    background-color:#6d898f;
+}
+/*******************************/
+body { 
+    font-family: Century Gothic;
+    font-style: normal;
+    background: linear-gradient(100deg,#cdecfa, #eae9f5);
+    margin: 0; 
+}
+.caption{
+    font-style: normal;
+    text-align: center; 
+    margin: 0; 
+}
+.coord_syst{
+    display: none;
+    float: left;
+    width:45%;
+    padding: 1%;
+}
+canvas{
+    float: right;
+    /*display: inline-block;*/ 
+    display: none;
+    padding-right: 1.7%;
+    padding-left: 0.3%;
+    padding-bottom: 0.5%;
+    padding-top: 2.5%;
+    top: 20px;
+}
+#general_info{
+    float: none;
+    width:96%;
+    padding: 1%;
+}
+.info{
+    display: none;
+    float: left;
+    width:96%;
+    padding: 1%;
+}
+.coord_syst#output{
+    float: left;
+    width:45%;
+    padding: 1%;
+}
+/*****Расположение******/
+#output{
+    margin-top: 340px;
+    margin-left: 50%;
+}
+#reset{
+    margin-top: -230px;
+    margin-left: 70%;
+}
+.coord_syst{
+    margin-top: -400px;
+}
+#affineMatrix{
+    margin-top: -81px;
+    margin-left: 5%;
+}
+canvas{
+    margin-top: -42%;
+}
+
+/*расположение углы*/
+#r{
+    margin-top: -110px;
+}
+#output_rotate{
+    margin-top: -53px;
+    margin-left: 5%;
+    margin-right: 50%;
+}
+
+#rotatQuat{
+    margin-top: -520px;
+}
+#quaterVW{
+    margin-top: 30px;
+}
+/*расположение проекции*/
+#pp{
+    margin-top: -79px;
+    margin-left: 5%;
+    margin-right: 50%;
+}
+
+
+
